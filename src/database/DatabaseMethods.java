@@ -26,10 +26,37 @@ public class DatabaseMethods {
   public ArrayList<Account> getAllAccounts() throws SQLException {
     ArrayList<Account> accounts = new ArrayList<>();
 
-    // TODO: Implement
-
-    return accounts;
-
+    String query = """
+          SELECT a.FIRST_NAME, a.LAST_NAME, addr.STREET, addr.CITY, addr.PROVINCE, addr.POSTAL_CODE, a.PHONE_NUMBER, a.EMAIL, a.BIRTHDATE,
+          CASE WHEN p.ID IS NOT NULL THEN true ELSE false END AS IS_PASSENGER,
+          CASE WHEN d.ID IS NOT NULL THEN true ELSE false END AS IS_DRIVER
+          FROM accounts a
+          JOIN addresses addr
+          ON a.ADDRESS_ID = addr.ID
+          LEFT JOIN passengers p
+          ON a.ID = p.ID
+          LEFT JOIN drivers d
+          ON a.ID = d.ID
+        """;
+    try (PreparedStatement ps = conn.prepareStatement(query);
+        ResultSet rs = ps.executeQuery()) {
+      while (rs.next()) {
+        Account acc = new Account(
+            rs.getString("FIRST_NAME"),
+            rs.getString("LAST_NAME"),
+            rs.getString("STREET"),
+            rs.getString("CITY"),
+            rs.getString("PROVINCE"),
+            rs.getString("POSTAL_CODE"),
+            rs.getString("PHONE_NUMBER"),
+            rs.getString("EMAIL"),
+            rs.getString("BIRTHDATE"),
+            rs.getBoolean("IS_PASSENGER"),
+            rs.getBoolean("IS_DRIVER"));
+        accounts.add(acc);
+      }
+      return accounts;
+    }
   }
 
   /*
