@@ -2,7 +2,6 @@
  * Group members: YOUR NAMES HERE
  * Instructions: For Project 2, implement all methods in this class, and test to confirm they behave as expected when the program is run.
  */
-
 package database;
 
 import java.sql.*;
@@ -12,250 +11,436 @@ import dataClasses.*;
 import dataClasses.Driver;
 
 public class DatabaseMethods {
-  private Connection conn;
 
-  public DatabaseMethods(Connection conn) {
-    this.conn = conn;
-  }
+    private Connection conn;
 
-  /*
+    public DatabaseMethods(Connection conn) {
+        this.conn = conn;
+    }
+
+    /*
    * Accepts: Nothing
    * Behaviour: Retrieves information about all accounts
-   * Returns: List of account objects
-   */
-  public ArrayList<Account> getAllAccounts() throws SQLException {
-    ArrayList<Account> accounts = new ArrayList<>();
+   * Returns: List of account objects 
+     */
+    public ArrayList<Account> getAllAccounts() throws SQLException {
+        ArrayList<Account> accounts = new ArrayList<Account>();
 
-    // TODO: Implement
+        // TODO: Implement
+        return accounts;
+    }
 
-    return accounts;
-
-  }
-
-  /*
+    /*
    * Accepts: Email address of driver
-   * Behaviour: Calculates the average rating over all rides performed by the
-   * driver specified by the email address
-   * Returns: The average rating value
-   */
-  public double getAverageRatingForDriver(String driverEmail) throws SQLException {
-    double averageRating = 0.0;
+   * Behaviour: Calculates the average rating over all rides performed by the driver specified by the email address
+   * Returns: The average rating value 
+     */
+    public double getAverageRatingForDriver(String driverEmail) throws SQLException {
+        double averageRating = 0.0;
 
-    // TODO: Implement
+        // TODO: Implement
+        return averageRating;
+    }
 
-    return averageRating;
-  }
-
-  /*
-   * Accepts: Account details, and passenger and driver specific details.
-   * Passenger or driver details could be
+    /*
+   * Accepts: Account details, and passenger and driver specific details. Passenger or driver details could be
    * null if account is only intended for one type of use.
    * Behaviour:
-   * - Insert new account using information provided in Account object
-   * - For non-null passenger/driver details, insert the associated data into the
-   * relevant tables
-   * Returns: Nothing
-   */
-  public void createAccount(Account account, Passenger passenger, Driver driver) throws SQLException {
-    // TODO: Implement
-    // Hint: Use the available insertAccount, insertPassenger, and insertDriver
-    // methods
-  }
+   *  - Insert new account using information provided in Account object
+   *  - For non-null passenger/driver details, insert the associated data into the relevant tables
+   * Returns: Nothing 
+     */
+    public void createAccount(Account account, Passenger passenger, Driver driver) throws SQLException {
+        // TODO: Implement
+        // Hint: Use the available insertAccount, insertPassenger, and insertDriver methods
+    }
 
-  /*
+    /*
    * Accepts: Account details (which includes address information)
-   * Behaviour: Inserts the new account, as well as the account's address if it
-   * doesn't already exist. The new/existing address should
+   * Behaviour: Inserts the new account, as well as the account's address if it doesn't already exist. The new/existing address should
    * be linked to the account
-   * Returns: Id of the new account
-   */
-  public int insertAccount(Account account) throws SQLException {
-    int accountId = -1;
+   * Returns: Id of the new account 
+     */
+    public int insertAccount(Account account) throws SQLException {
+        int accountId = -1;
 
-    // TODO: Implement
-    // Hint: Use the insertAddressIfNotExists method
+        // TODO: Implement
+        // Hint: Use the insertAddressIfNotExists method
+        return accountId;
+    }
 
-    return accountId;
-  }
+    /*
+   * Accepts: Passenger details (should not be null), and account id for the passenger
+   * Behaviour: Inserts the new passenger record, correctly linked to the account id
+   * Returns: Id of the new passenger 
+     */
+    public int insertPassenger(Passenger passenger, int accountId) throws SQLException {
+        // TODO: Implement
 
-  /*
-   * Accepts: Passenger details (should not be null), and account id for the
-   * passenger
-   * Behaviour: Inserts the new passenger record, correctly linked to the account
-   * id
-   * Returns: Id of the new passenger
-   */
-  public int insertPassenger(Passenger passenger, int accountId) throws SQLException {
-    // TODO: Implement
+        return accountId;
+    }
 
-    return accountId;
-  }
-
-  /*
+    /*
    * Accepts: Driver details (should not be null), and account id for the driver
-   * Behaviour: Inserts the new driver and driver's license record, correctly
-   * linked to the account id
-   * Returns: Id of the new driver
-   */
-  public int insertDriver(Driver driver, int accountId) throws SQLException {
-    // TODO: Implement
-    // Hint: Use the insertLicense method
+   * Behaviour: Inserts the new driver and driver's license record, correctly linked to the account id
+   * Returns: Id of the new driver 
+     */
+    public int insertDriver(Driver driver, int accountId) throws SQLException {
+        // TODO: Implement
+        // Hint: Use the insertLicense method
 
-    return accountId;
-  }
+        return accountId;
+    }
 
-  /*
+    /*
    * Accepts: Driver's license number and license expiry
    * Behaviour: Inserts the new driver's license record
    * Returns: Id of the new driver's license
-   */
-  public int insertLicense(String licenseNumber, String licenseExpiry) throws SQLException {
-    int licenseId = -1;
-    // TODO: Implement
+     */
+    public int insertLicense(String licenseNumber, String licenseExpiry) throws SQLException {
+        int licenseId = -1;
+        // TODO: Implement
 
-    return licenseId;
-  }
+        return licenseId;
+    }
 
-  /*
+    /*
    * Accepts: Address details
-   * Behaviour:
-   * - Checks if an address with these properties already exists.
-   * - If it does, gets the id of the existing address.
-   * - If it does not exist, creates the address in the database, and gets the id
-   * of the new address
+   * Behaviour: 
+   *  - Checks if an address with these properties already exists.
+   *  - If it does, gets the id of the existing address.
+   *  - If it does not exist, creates the address in the database, and gets the id of the new address
    * Returns: Id of the address
-   */
-  public int insertAddressIfNotExists(Address address) throws SQLException {
-    int addressId = -1;
+     */
+    public int insertAddressIfNotExists(Address address) throws SQLException {
+        int addressId = -1;
 
-    // TODO: Implement
+        String checkQuery = """
+        SELECT ID FROM addresses
+        WHERE STREET = ? AND CITY = ? AND PROVINCE = ? AND POSTAL_CODE = ?
+    """;
 
-    return addressId;
-  }
+        try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
+            checkStmt.setString(1, address.getStreet());
+            checkStmt.setString(2, address.getCity());
+            checkStmt.setString(3, address.getProvince());
+            checkStmt.setString(4, address.getPostalCode());
 
-  /*
-   * Accepts: Name of new favourite destination, email address of the passenger,
-   * and the id of the address being favourited
-   * Behaviour: Finds the id of the passenger with the email address, then inserts
-   * the new favourite destination record
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next()) {
+                    // Address already exists
+                    addressId = rs.getInt("ID");
+                    return addressId;
+                }
+            }
+        }
+
+        String insertQuery = """
+        INSERT INTO addresses (STREET, CITY, PROVINCE, POSTAL_CODE)
+        VALUES (?, ?, ?, ?)
+    """;
+
+        try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
+            insertStmt.setString(1, address.getStreet());
+            insertStmt.setString(2, address.getCity());
+            insertStmt.setString(3, address.getProvince());
+            insertStmt.setString(4, address.getPostalCode());
+
+            int affectedRows = insertStmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Inserting address failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    addressId = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Inserting address failed, no ID obtained.");
+                }
+            }
+        }
+
+        return addressId;
+    }
+
+
+    /*
+   * Accepts: Name of new favourite destination, email address of the passenger, and the id of the address being favourited
+   * Behaviour: Finds the id of the passenger with the email address, then inserts the new favourite destination record
    * Returns: Nothing
-   */
-  public void insertFavouriteDestination(String favouriteName, String passengerEmail, int addressId)
-      throws SQLException {
-    // TODO: Implement
-  }
+     */
+    public void insertFavouriteDestination(String favouriteName, String passengerEmail, int addressId)
+            throws SQLException {
+        // TODO: Implement
+    }
 
-  /*
+    /*
    * Accepts: Email address
    * Behaviour: Determines if a driver exists with the provided email address
    * Returns: True if exists, false if not
-   */
-  public boolean checkDriverExists(String email) throws SQLException {
-    // TODO: Implement
+     */
+    public boolean checkDriverExists(String email) throws SQLException {
+        String query = """
+        SELECT d.ID
+        FROM drivers d
+        JOIN accounts a ON d.ID = a.ID
+        WHERE a.EMAIL = ?
+        """;
 
-    return true;
-  }
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
 
-  /*
+    /*
    * Accepts: Email address
    * Behaviour: Determines if a passenger exists with the provided email address
    * Returns: True if exists, false if not
-   */
-  public boolean checkPassengerExists(String email) throws SQLException {
-    // TODO: Implement
+     */
+    public boolean checkPassengerExists(String email) throws SQLException {
+        String query = """
+        SELECT p.ID
+        FROM passengers p
+        JOIN accounts a ON p.ID = a.ID
+        WHERE a.EMAIL = ?
+        """;
 
-    return true;
-  }
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
 
-  /*
-   * Accepts: Email address of passenger making request, id of dropoff address,
-   * requested date/time of ride, and number of passengers
+
+    /*
+   * Accepts: Email address of passenger making request, id of dropoff address, requested date/time of ride, and number of passengers
    * Behaviour: Inserts a new ride request, using the provided properties
    * Returns: Nothing
-   */
-  public void insertRideRequest(String passengerEmail, int dropoffLocationId, String date, String time,
-      int numberOfPassengers) throws SQLException {
-    int passengerId = this.getPassengerIdFromEmail(passengerEmail);
-    int pickupAddressId = this.getAccountAddressIdFromEmail(passengerEmail);
+     */
+    public void insertRideRequest(String passengerEmail, int dropoffLocationId, String date, String time,
+            int numberOfPassengers) throws SQLException {
 
-    // TODO: Implement
-  }
+        int passengerId = this.getPassengerIdFromEmail(passengerEmail);
+        int pickupAddressId = this.getAccountAddressIdFromEmail(passengerEmail);
 
-  /*
+        String insertQuery = """
+        INSERT INTO ride_requests (PASSENGER_ID, PICKUP_LOCATION_ID, PICKUP_DATE, PICKUP_TIME, NUMBER_OF_RIDERS, DROPOFF_LOCATION_ID)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
+            stmt.setInt(1, passengerId);
+            stmt.setInt(2, pickupAddressId);
+            stmt.setString(3, date);
+            stmt.setString(4, time);
+            stmt.setInt(5, numberOfPassengers);
+            stmt.setInt(6, dropoffLocationId);
+
+            stmt.executeUpdate();
+        }
+    }
+
+
+    /*
    * Accepts: Email address
-   * Behaviour: Gets id of passenger with specified email (assumes passenger
-   * exists)
+   * Behaviour: Gets id of passenger with specified email (assumes passenger exists)
    * Returns: Id
-   */
-  public int getPassengerIdFromEmail(String passengerEmail) throws SQLException {
-    int passengerId = -1;
-    // TODO: Implement
+     */
+    public int getPassengerIdFromEmail(String passengerEmail) throws SQLException {
+        int passengerId = -1;
 
-    return passengerId;
-  }
+        String query = """
+        SELECT p.ID
+        FROM passengers p
+        JOIN accounts a ON p.ID = a.ID
+        WHERE a.EMAIL = ?
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, passengerEmail);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    passengerId = rs.getInt("ID");
+                }
+            }
+        }
 
-  /*
+        return passengerId;
+    }
+
+
+    /*
    * Accepts: Email address
    * Behaviour: Gets id of driver with specified email (assumes driver exists)
    * Returns: Id
-   */
-  public int getDriverIdFromEmail(String driverEmail) throws SQLException {
-    int driverId = -1;
-    // TODO: Implement
+     */
+    public int getDriverIdFromEmail(String driverEmail) throws SQLException {
+        int driverId = -1;
+        String query = """
+        SELECT d.ID
+        FROM drivers d
+        JOIN accounts a ON d.ID = a.ID
+        WHERE a.EMAIL = ?
+    """;
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, driverEmail);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    driverId = rs.getInt("ID");
+                }
+            }
+        }
 
-    return driverId;
-  }
+        return driverId;
+    }
 
-  /*
+    /*
    * Accepts: Email address
-   * Behaviour: Gets the id of the address tied to the account with the provided
-   * email address
+   * Behaviour: Gets the id of the address tied to the account with the provided email address
    * Returns: Address id
-   */
-  public int getAccountAddressIdFromEmail(String email) throws SQLException {
-    int addressId = -1;
-    // TODO: Implement
+     */
+    public int getAccountAddressIdFromEmail(String email) throws SQLException {
+        int addressId = -1;
 
-    return addressId;
-  }
+        String query = "SELECT ADDRESS_ID FROM accounts WHERE EMAIL = ?";
 
-  /*
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    addressId = rs.getInt("ADDRESS_ID");
+                }
+            }
+        }
+        return addressId;
+    }
+
+
+    /*
    * Accepts: Email address of passenger
-   * Behaviour: Gets a list of all the specified passenger's favourite
-   * destinations
+   * Behaviour: Gets a list of all the specified passenger's favourite destinations
    * Returns: List of favourite destinations
-   */
-  public ArrayList<FavouriteDestination> getFavouriteDestinationsForPassenger(String passengerEmail)
-      throws SQLException {
-    ArrayList<FavouriteDestination> favouriteDestinations = new ArrayList<FavouriteDestination>();
+     */
+    public ArrayList<FavouriteDestination> getFavouriteDestinationsForPassenger(String passengerEmail)
+            throws SQLException {
+        ArrayList<FavouriteDestination> favouriteDestinations = new ArrayList<>();
 
-    // TODO: Implement
+        String query = """
+        SELECT fl.NAME, a.ID AS addressId, a.STREET, a.CITY, a.PROVINCE, a.POSTAL_CODE
+        FROM favourite_locations fl
+        JOIN addresses a ON fl.LOCATION_ID = a.ID
+        JOIN passengers p ON fl.PASSENGER_ID = p.ID
+        JOIN accounts acc ON p.ID = acc.ID
+        WHERE acc.EMAIL = ?
+    """;
 
-    return favouriteDestinations;
-  }
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, passengerEmail);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String name = rs.getString("NAME");
+                    int addressId = rs.getInt("addressId");
+                    String street = rs.getString("STREET");
+                    String city = rs.getString("CITY");
+                    String province = rs.getString("PROVINCE");
+                    String postalCode = rs.getString("POSTAL_CODE");
 
-  /*
+                    FavouriteDestination destination = new FavouriteDestination(
+                            name, addressId, street, city, province, postalCode
+                    );
+                    favouriteDestinations.add(destination);
+                }
+            }
+        }
+
+        return favouriteDestinations;
+    }
+
+
+    /*
    * Accepts: Nothing
-   * Behaviour: Gets a list of all uncompleted ride requests (i.e. requests
-   * without an associated ride record)
+   * Behaviour: Gets a list of all uncompleted ride requests (i.e. requests without an associated ride record)
    * Returns: List of all uncompleted rides
-   */
-  public ArrayList<RideRequest> getUncompletedRideRequests() throws SQLException {
-    ArrayList<RideRequest> uncompletedRideRequests = new ArrayList<RideRequest>();
+     */
+    public ArrayList<RideRequest> getUncompletedRideRequests() throws SQLException {
+        ArrayList<RideRequest> uncompletedRideRequests = new ArrayList<>();
 
-    // TODO: Implement
+        String query = """
+        SELECT rr.ID,
+               a.FIRST_NAME,
+               a.LAST_NAME,
+               pickup.STREET AS pickup_street,
+               pickup.CITY AS pickup_city,
+               dropoff.STREET AS dropoff_street,
+               dropoff.CITY AS dropoff_city,
+               rr.PICKUP_DATE,
+               rr.PICKUP_TIME
+        FROM ride_requests rr
+        JOIN passengers p ON rr.PASSENGER_ID = p.ID
+        JOIN accounts a ON p.ID = a.ID
+        JOIN addresses pickup ON rr.PICKUP_LOCATION_ID = pickup.ID
+        JOIN addresses dropoff ON rr.DROPOFF_LOCATION_ID = dropoff.ID
+        LEFT JOIN rides r ON rr.ID = r.REQUEST_ID
+        WHERE r.REQUEST_ID IS NULL
+    """;
 
-    return uncompletedRideRequests;
-  }
+        try (PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                RideRequest request = new RideRequest(
+                        rs.getInt("ID"),
+                        rs.getString("FIRST_NAME"),
+                        rs.getString("LAST_NAME"),
+                        rs.getString("pickup_street"),
+                        rs.getString("pickup_city"),
+                        rs.getString("dropoff_street"),
+                        rs.getString("dropoff_city"),
+                        rs.getString("PICKUP_DATE"),
+                        rs.getString("PICKUP_TIME")
+                );
+                uncompletedRideRequests.add(request);
+            }
+        }
 
-  /*
+        return uncompletedRideRequests;
+    }
+
+
+    /*
    * Accepts: Ride details
    * Behaviour: Inserts a new ride record
    * Returns: Nothing
-   */
-  public void insertRide(Ride ride) throws SQLException {
-    // TODO: Implement
-    // Hint: Use getDriverIdFromEmail
-  }
+     */
+    public void insertRide(Ride ride) throws SQLException {
+        // Lấy driverId từ email
+        int driverId = getDriverIdFromEmail(ride.getDriverEmail());
+
+        String insertQuery = """
+        INSERT INTO rides
+        (DRIVER_ID, REQUEST_ID, ACTUAL_START_DATE, ACTUAL_START_TIME,
+         ACTUAL_END_DATE, ACTUAL_END_TIME, DISTANCE, CHARGE,
+         RATING_FROM_DRIVER, RATING_FROM_PASSENGER)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
+            stmt.setInt(1, driverId);
+            stmt.setInt(2, ride.getRideRequestId());
+            stmt.setString(3, ride.getStartDate());
+            stmt.setString(4, ride.getStartTime());
+            stmt.setString(5, ride.getEndDate());
+            stmt.setString(6, ride.getEndTime());
+            stmt.setDouble(7, ride.getDistance());
+            stmt.setDouble(8, ride.getCharge());
+            stmt.setInt(9, ride.getRatingFromDriver());
+            stmt.setInt(10, ride.getRatingFromPassenger());
+
+            stmt.executeUpdate();
+        }
+    }
 
 }
