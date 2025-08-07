@@ -39,7 +39,7 @@ public class DatabaseMethods {
           ON a.ID = d.ID
         """;
     try (PreparedStatement ps = conn.prepareStatement(query);
-        ResultSet rs = ps.executeQuery()) {
+        ResultSet rs = ps.executeQuery();) {
       while (rs.next()) {
         Account acc = new Account(
             rs.getString("FIRST_NAME"),
@@ -68,9 +68,26 @@ public class DatabaseMethods {
   public double getAverageRatingForDriver(String driverEmail) throws SQLException {
     double averageRating = 0.0;
 
-    // TODO: Implement
+    String query = """
+         SELECT d.ID, a.EMAIL, AVG(r.RATING_FROM_PASSENGER) AS AVERAGE_RATING
+         FROM drivers d
+         INNER JOIN accounts a
+         ON d.ID = a.ID
+         INNER JOIN rides r
+         ON d.ID = r.DRIVER_ID
+         WHERE a.EMAIL = ?
+        """;
 
-    return averageRating;
+    try (PreparedStatement ps = conn.prepareStatement(query);) {
+      ps.setString(1, driverEmail);
+      try (ResultSet rs = ps.executeQuery();) {
+        while (rs.next()) {
+          averageRating = rs.getInt("AVERAGE_RATING");
+        }
+      }
+
+      return averageRating;
+    }
   }
 
   /*
