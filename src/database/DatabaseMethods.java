@@ -26,10 +26,37 @@ public class DatabaseMethods {
   public ArrayList<Account> getAllAccounts() throws SQLException {
     ArrayList<Account> accounts = new ArrayList<>();
 
-    // TODO: Implement
-
-    return accounts;
-
+    String query = """
+          SELECT a.FIRST_NAME, a.LAST_NAME, addr.STREET, addr.CITY, addr.PROVINCE, addr.POSTAL_CODE, a.PHONE_NUMBER, a.EMAIL, a.BIRTHDATE,
+          CASE WHEN p.ID IS NOT NULL THEN true ELSE false END AS IS_PASSENGER,
+          CASE WHEN d.ID IS NOT NULL THEN true ELSE false END AS IS_DRIVER
+          FROM accounts a
+          JOIN addresses addr
+          ON a.ADDRESS_ID = addr.ID
+          LEFT JOIN passengers p
+          ON a.ID = p.ID
+          LEFT JOIN drivers d
+          ON a.ID = d.ID
+        """;
+    try (PreparedStatement ps = conn.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();) {
+      while (rs.next()) {
+        Account acc = new Account(
+            rs.getString("FIRST_NAME"),
+            rs.getString("LAST_NAME"),
+            rs.getString("STREET"),
+            rs.getString("CITY"),
+            rs.getString("PROVINCE"),
+            rs.getString("POSTAL_CODE"),
+            rs.getString("PHONE_NUMBER"),
+            rs.getString("EMAIL"),
+            rs.getString("BIRTHDATE"),
+            rs.getBoolean("IS_PASSENGER"),
+            rs.getBoolean("IS_DRIVER"));
+        accounts.add(acc);
+      }
+      return accounts;
+    }
   }
 
   /*
@@ -41,9 +68,26 @@ public class DatabaseMethods {
   public double getAverageRatingForDriver(String driverEmail) throws SQLException {
     double averageRating = 0.0;
 
-    // TODO: Implement
+    String query = """
+         SELECT d.ID, a.EMAIL, AVG(r.RATING_FROM_PASSENGER) AS AVERAGE_RATING
+         FROM drivers d
+         INNER JOIN accounts a
+         ON d.ID = a.ID
+         INNER JOIN rides r
+         ON d.ID = r.DRIVER_ID
+         WHERE a.EMAIL = ?
+        """;
 
-    return averageRating;
+    try (PreparedStatement ps = conn.prepareStatement(query);) {
+      ps.setString(1, driverEmail);
+      try (ResultSet rs = ps.executeQuery();) {
+        while (rs.next()) {
+          averageRating = rs.getInt("AVERAGE_RATING");
+        }
+      }
+
+      return averageRating;
+    }
   }
 
   /*
@@ -128,7 +172,50 @@ public class DatabaseMethods {
   public int insertAddressIfNotExists(Address address) throws SQLException {
     int addressId = -1;
 
-    // TODO: Implement
+    int id = address.getId();
+    String street = address.getStreet();
+    String city = address.getCity();
+    String province = address.getProvince();
+    String postalCode = address.getPostalCode();
+
+    String checkQuery = """
+          SELECT *
+          FROM addresses
+          WHERE ID = ? AND STREET = ? AND CITY = ? AND PROVINCE = ? AND POSTAL_CODE = ?
+        """;
+
+    try (PreparedStatement psCheck = conn.prepareStatement(checkQuery);) {
+      psCheck.setInt(1, id);
+      psCheck.setString(2, street);
+      psCheck.setString(3, city);
+      psCheck.setString(4, province);
+      psCheck.setString(5, postalCode);
+      try (ResultSet rs = psCheck.executeQuery();) {
+        if (rs.next()) {
+          addressId = id;
+        } else {
+          String insertQuery = """
+               INSERT INTO addresses
+               VALUES(?, ?, ?, ?, ?);
+              """;
+
+          try (PreparedStatement psInsert = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);) {
+            psInsert.setInt(1, id);
+            psInsert.setString(2, street);
+            psInsert.setString(3, city);
+            psInsert.setString(4, province);
+            psInsert.setString(5, postalCode);
+            psInsert.executeUpdate();
+
+            try (ResultSet generatedKeys = psInsert.getGeneratedKeys();) {
+              if (generatedKeys.next()) {
+                addressId = generatedKeys.getInt(1);
+              }
+            }
+          }
+        }
+      }
+    }
 
     return addressId;
   }
