@@ -172,7 +172,50 @@ public class DatabaseMethods {
   public int insertAddressIfNotExists(Address address) throws SQLException {
     int addressId = -1;
 
-    // TODO: Implement
+    int id = address.getId();
+    String street = address.getStreet();
+    String city = address.getCity();
+    String province = address.getProvince();
+    String postalCode = address.getPostalCode();
+
+    String checkQuery = """
+          SELECT *
+          FROM addresses
+          WHERE ID = ? AND STREET = ? AND CITY = ? AND PROVINCE = ? AND POSTAL_CODE = ?
+        """;
+
+    try (PreparedStatement psCheck = conn.prepareStatement(checkQuery);) {
+      psCheck.setInt(1, id);
+      psCheck.setString(2, street);
+      psCheck.setString(3, city);
+      psCheck.setString(4, province);
+      psCheck.setString(5, postalCode);
+      try (ResultSet rs = psCheck.executeQuery();) {
+        if (rs.next()) {
+          addressId = id;
+        } else {
+          String insertQuery = """
+               INSERT INTO addresses
+               VALUES(?, ?, ?, ?, ?);
+              """;
+
+          try (PreparedStatement psInsert = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);) {
+            psInsert.setInt(1, id);
+            psInsert.setString(2, street);
+            psInsert.setString(3, city);
+            psInsert.setString(4, province);
+            psInsert.setString(5, postalCode);
+            psInsert.executeUpdate();
+
+            try (ResultSet generatedKeys = psInsert.getGeneratedKeys();) {
+              if (generatedKeys.next()) {
+                addressId = generatedKeys.getInt(1);
+              }
+            }
+          }
+        }
+      }
+    }
 
     return addressId;
   }
