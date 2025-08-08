@@ -101,9 +101,26 @@ public class DatabaseMethods {
    * Returns: Nothing
    */
   public void createAccount(Account account, Passenger passenger, Driver driver) throws SQLException {
-    // TODO: Implement
-    // Hint: Use the available insertAccount, insertPassenger, and insertDriver
-    // methods
+    try {
+      conn.setAutoCommit(false);
+
+      int accountId = insertAccount(account);
+
+      if (passenger != null) {
+        insertPassenger(passenger, accountId);
+      }
+
+      if (driver != null) {
+        insertDriver(driver, accountId);
+      }
+
+      conn.commit();
+
+    } catch (SQLException e) {
+      conn.rollback();
+    } finally {
+      conn.setAutoCommit(true);
+    }
   }
 
   /*
