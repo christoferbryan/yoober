@@ -284,7 +284,20 @@ public class DatabaseMethods {
    */
   public void insertFavouriteDestination(String favouriteName, String passengerEmail, int addressId)
       throws SQLException {
-    // TODO: Implement
+
+    int passengerId = getPassengerIdFromEmail(passengerEmail);
+
+    String query = """
+        INSERT INTO favourite_locations (passenger_id, location_id, name)
+        VALUES (?, ?, ?)
+        """;
+
+    try (PreparedStatement ps = conn.prepareStatement(query);) {
+      ps.setInt(1, passengerId);
+      ps.setInt(2, addressId);
+      ps.setString(3, favouriteName);
+      ps.executeUpdate();
+    }
   }
 
   /*
