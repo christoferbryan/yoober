@@ -115,9 +115,29 @@ public class DatabaseMethods {
    */
   public int insertAccount(Account account) throws SQLException {
     int accountId = -1;
+    Address address = account.getAddress();
+    int addressId = insertAddressIfNotExists(address);
 
-    // TODO: Implement
-    // Hint: Use the insertAddressIfNotExists method
+    String query = """
+        INSERT INTO accounts (FIRST_NAME, LAST_NAME, BIRTHDATE, ADDRESS_ID, PHONE_NUMBER, EMAIL)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
+    try (PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);) {
+      ps.setString(1, account.getFirstName());
+      ps.setString(2, account.getLastName());
+      ps.setString(3, account.getBirthdate());
+      ps.setInt(4, addressId);
+      ps.setString(5, account.getPhoneNumber());
+      ps.setString(6, account.getEmail());
+      ps.executeUpdate();
+
+      try (ResultSet generatedKeys = ps.getGeneratedKeys();) {
+        if (generatedKeys.next()) {
+          accountId = generatedKeys.getInt(1);
+        }
+      }
+    }
     return accountId;
   }
 
@@ -139,6 +159,7 @@ public class DatabaseMethods {
     try (PreparedStatement ps = conn.prepareStatement(query);) {
       ps.setInt(1, accountId);
       ps.setString(2, creditCardNumber);
+      ps.executeUpdate();
     }
 
     return accountId;
@@ -163,6 +184,7 @@ public class DatabaseMethods {
     try (PreparedStatement ps = conn.prepareStatement(query)) {
       ps.setInt(1, accountId);
       ps.setInt(2, licenseId);
+      ps.executeUpdate();
     }
 
     return accountId;
