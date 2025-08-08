@@ -141,8 +141,19 @@ public class DatabaseMethods {
    * Returns: Id of the new driver
    */
   public int insertDriver(Driver driver, int accountId) throws SQLException {
-    // TODO: Implement
-    // Hint: Use the insertLicense method
+    String licenseNumber = driver.getLicenseNumber();
+    String licenseExpiryDate = driver.getLicenseExpiryDate();
+    int licenseId = insertLicense(licenseNumber, licenseExpiryDate);
+
+    String query = """
+          INSERT INTO drivers
+          VALUES (?, ?)
+        """;
+
+    try (PreparedStatement ps = conn.prepareStatement(query)) {
+      ps.setInt(1, accountId);
+      ps.setInt(2, licenseId);
+    }
 
     return accountId;
   }
