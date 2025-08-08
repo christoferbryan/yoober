@@ -129,7 +129,17 @@ public class DatabaseMethods {
    * Returns: Id of the new passenger
    */
   public int insertPassenger(Passenger passenger, int accountId) throws SQLException {
-    // TODO: Implement
+    String creditCardNumber = passenger.getCreditCardNumber();
+
+    String query = """
+        INSERT INTO passengers
+        VALUES (?, ?)
+        """;
+
+    try (PreparedStatement ps = conn.prepareStatement(query);) {
+      ps.setInt(1, accountId);
+      ps.setString(2, creditCardNumber);
+    }
 
     return accountId;
   }
