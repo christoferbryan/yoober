@@ -1,5 +1,5 @@
 /*
- * Group members: YOUR NAMES HERE
+ * Group members: Christofer Bryan Natanael, Thanh Cong Luong
  * Instructions: For Project 2, implement all methods in this class, and test to confirm they behave as expected when the program is run.
  */
 package database;
